@@ -3,7 +3,7 @@ export interface CourseStudentImage {
   alt: string;
 }
 
-/** Placeholder paths — swap in real Unsplash/Pexels assets at these paths. */
+/** Self-hosted student photos under /public/images. */
 export const COURSE_STUDENT_IMAGES: CourseStudentImage[] = [
   {
     src: '/images/student-1.jpg',
@@ -14,19 +14,14 @@ export const COURSE_STUDENT_IMAGES: CourseStudentImage[] = [
     alt: 'Student writing an assignment on a laptop',
   },
   {
-    src: '/images/student-studying.jpg',
+    src: '/images/student-3.jpg',
     alt: 'Student studying with textbooks and a highlighter',
-  },
-  {
-    src: '/images/student-laptop.jpg',
-    alt: 'Student working on coursework using a laptop',
   },
 ];
 
-/** Fixed slots — mid and end slots reuse earlier images where noted. */
+/** One unique image per slot — no repeats across hero, mid-article, and end CTA. */
 export const COURSE_IMAGE_SLOTS = {
   hero: COURSE_STUDENT_IMAGES[0],
   midArticle: COURSE_STUDENT_IMAGES[1],
-  /** Reuses the hero image near the final CTA. */
-  beforeFinalCta: COURSE_STUDENT_IMAGES[0],
+  beforeFinalCta: COURSE_STUDENT_IMAGES[2],
 } as const satisfies Record<string, CourseStudentImage>;
