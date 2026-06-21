@@ -1,7 +1,7 @@
 export const SITE_NAME = 'AssignHelp';
 
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://assignhelp.com';
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://helpmebro.org';
 
 export const DEFAULT_OG_TITLE =
   'Assignment Help for US University Students | Summer 2026 Courses';

@@ -41,7 +41,7 @@ Copy this template and fill in **verified** values only:
 | Field | Description |
 |-------|-------------|
 | `fullName` | Official university name from the catalog or institution website |
-| `displaySlug` | Production subdomain label (before `.helpmebro.com`). Must be unique. |
+| `displaySlug` | Production subdomain label (before `.helpmebro.org`). Must be unique. |
 | `shortKey` | Internal identifier; **must match the folder name** and `?uni=` query param in dev |
 | `status` | `"live"` (course data published) or `"coming_soon"` (placeholder page only) |
 | `assignmentHelpName` | Optional. Used in `{Name} Assignment Help` title/H1. Defaults to `fullName` without a leading "The ". |
@@ -106,7 +106,7 @@ This writes `lib/generated/universityRegistry.json`, which powers:
 Point the descriptive subdomain to the app:
 
 ```
-{displaySlug}.helpmebro.com  →  your deployment
+{displaySlug}.helpmebro.org  →  your deployment
 ```
 
 Confirm the mapping in `lib/generated/universityRegistry.json` after sync.

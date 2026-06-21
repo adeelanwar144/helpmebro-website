@@ -12,7 +12,7 @@ function extractHostSubdomain(host: string): string | null {
   }
 
   const parts = hostname.split('.');
-  // e.g. ohio-state-university-assignment-help.helpmebro.com
+  // e.g. ohio-state-university-assignment-help.helpmebro.org
   if (parts.length >= 3 && parts[0] !== 'www') {
     return parts[0];
   }
