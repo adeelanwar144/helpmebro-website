@@ -31,6 +31,7 @@ import {
   getSeoContentForCourse,
   isCourseExcluded,
 } from './seoContentIndex';
+import { getBundledAllCoursesFile, mergeAllCoursesFiles } from './bundledAllCourses';
 
 export {
   universityToSlug,
@@ -110,7 +111,11 @@ async function mergeSeoContent(university: UniversityData): Promise<UniversityDa
   const remoteFile = await fetchJson<AllCoursesFile>(
     `${DATA_BASE_URL}/${university.slug}/all-courses.json`
   );
-  const index = buildSeoContentIndex(remoteFile);
+  const mergedFile = mergeAllCoursesFiles(
+    remoteFile,
+    getBundledAllCoursesFile(university.slug)
+  );
+  const index = buildSeoContentIndex(mergedFile);
 
   const departments = university.departments.map((dept) => {
     if (!dept.uniqueCourses) return dept;
