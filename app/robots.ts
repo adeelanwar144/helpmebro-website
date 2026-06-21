@@ -3,6 +3,8 @@ import { headers } from 'next/headers';
 import { getBaseUrlFromHost, getUniversityKeyFromHost } from '@/lib/routing';
 import { SITE_URL } from '@/lib/site';
 
+export const runtime = 'edge';
+
 export default function robots(): MetadataRoute.Robots {
   const host = headers().get('host') ?? '';
   const uniKey = getUniversityKeyFromHost(host);

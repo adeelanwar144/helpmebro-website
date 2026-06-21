@@ -10,6 +10,8 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Breadcrumb from '@/components/layout/Breadcrumb';
 
+export const runtime = 'edge';
+
 interface Props {
   params: { department: string };
   searchParams: { uni?: string };

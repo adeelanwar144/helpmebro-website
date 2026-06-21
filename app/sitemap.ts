@@ -5,6 +5,8 @@ import { getBaseUrlFromHost, getUniversityKeyFromHost } from '@/lib/routing';
 import { SITE_URL } from '@/lib/site';
 import { isComingSoonSlug, isLiveSlug } from '@/lib/universities';
 
+export const runtime = 'edge';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const host = headers().get('host') ?? '';
   const uniKey = getUniversityKeyFromHost(host);

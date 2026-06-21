@@ -22,6 +22,7 @@ import Testimonials from '@/components/home/Testimonials';
 import FAQ from '@/components/home/FAQ';
 import JsonLd from '@/components/seo/JsonLd';
 
+export const runtime = 'edge';
 export const revalidate = 3600;
 
 interface Props {

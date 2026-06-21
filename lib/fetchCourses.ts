@@ -1,11 +1,10 @@
 import 'server-only';
 
-import fs from 'fs';
-import path from 'path';
 import {
   DATA_BASE_URL,
   INDEX_URL,
   NESTED_INDEX_FALLBACK_URL,
+  type AllCoursesFile,
   type Course,
   type DataIndex,
   type Department,
@@ -28,12 +27,10 @@ import {
 import { processUniversityData, findUniqueCourse } from './processUniversity';
 import { getDepartmentSlug } from './departmentSlugs';
 import {
-  loadAllCoursesFile,
   buildSeoContentIndex,
   getSeoContentForCourse,
   isCourseExcluded,
-} from './seoContentLoader';
-import { loadPhilosSeoContentMap } from './philosSeoOverlay';
+} from './seoContentIndex';
 
 export {
   universityToSlug,
@@ -98,17 +95,6 @@ async function fetchJson<T>(url: string): Promise<T | null> {
   }
 }
 
-function loadLocalNestedIndex(): DataIndex | null {
-  try {
-    const filePath = path.join(process.cwd(), 'data', 'index.json');
-    if (!fs.existsSync(filePath)) return null;
-    const raw = JSON.parse(fs.readFileSync(filePath, 'utf8')) as unknown;
-    return isValidNestedIndex(raw) ? raw : null;
-  } catch {
-    return null;
-  }
-}
-
 async function resolveNestedIndex(): Promise<DataIndex | null> {
   const main = await fetchJson<unknown>(INDEX_URL);
 
@@ -117,22 +103,21 @@ async function resolveNestedIndex(): Promise<DataIndex | null> {
   const fallback = await fetchJson<unknown>(NESTED_INDEX_FALLBACK_URL);
   if (isValidNestedIndex(fallback)) return fallback;
 
-  return loadLocalNestedIndex();
+  return null;
 }
 
-function mergeLocalSeoContent(university: UniversityData): UniversityData {
-  const localFile = loadAllCoursesFile(university.slug);
-  const index = buildSeoContentIndex(localFile);
-  const philosOverlay =
-    university.slug === 'ohio-state' ? loadPhilosSeoContentMap() : new Map();
+async function mergeSeoContent(university: UniversityData): Promise<UniversityData> {
+  const remoteFile = await fetchJson<AllCoursesFile>(
+    `${DATA_BASE_URL}/${university.slug}/all-courses.json`
+  );
+  const index = buildSeoContentIndex(remoteFile);
 
   const departments = university.departments.map((dept) => {
     if (!dept.uniqueCourses) return dept;
 
     const uniqueCourses = dept.uniqueCourses.map((course) => {
       const code = course.courseCode.trim();
-      const seoContent =
-        getSeoContentForCourse(code, index) ?? philosOverlay.get(code);
+      const seoContent = getSeoContentForCourse(code, index);
       const excluded = isCourseExcluded(code, index);
       return {
         ...course,
@@ -147,7 +132,7 @@ function mergeLocalSeoContent(university: UniversityData): UniversityData {
   return { ...university, departments };
 }
 
-function enrichFromNested(university: UniversityIndex): UniversityData {
+async function enrichFromNested(university: UniversityIndex): Promise<UniversityData> {
   const slug = universityToSlug(university.university);
   const departments: Department[] = university.departments.map((dept) => ({
     name: dept.name,
@@ -155,7 +140,7 @@ function enrichFromNested(university: UniversityIndex): UniversityData {
     courses: (dept.courses ?? []).map((c) => normalizeCourse(c as unknown as Record<string, unknown>)),
   }));
 
-  return mergeLocalSeoContent(
+  return mergeSeoContent(
     processUniversityData({
       ...university,
       slug,
@@ -184,7 +169,7 @@ async function loadUniversityFromFolders(slug: string): Promise<UniversityData |
   const departments = departmentResults.filter(Boolean) as Department[];
   if (!departments.length) return null;
 
-  return mergeLocalSeoContent(
+  return mergeSeoContent(
     processUniversityData({
       slug: summary.id ?? slug,
       university: summary.fullName,
@@ -201,10 +186,10 @@ async function loadFromNestedIndex(): Promise<UniversityData[]> {
   const index = await resolveNestedIndex();
   if (!index) return [];
 
-  return index.universities
-    .filter(isNestedUniversity)
-    .map(enrichFromNested)
-    .filter((u) => isLiveSlug(u.slug));
+  const universities = await Promise.all(
+    index.universities.filter(isNestedUniversity).map(enrichFromNested)
+  );
+  return universities.filter((u) => isLiveSlug(u.slug));
 }
 
 async function loadFromFolders(): Promise<UniversityData[]> {
@@ -261,8 +246,7 @@ export async function fetchUniversityData(slug: string): Promise<UniversityData 
   if (!uni) {
     uni = await loadUniversityFromFolders(slug);
   } else {
-    // Re-read local all-courses.json so newly generated seoContent appears without restarting the server.
-    uni = mergeLocalSeoContent(uni);
+    uni = await mergeSeoContent(uni);
   }
   return uni;
 }

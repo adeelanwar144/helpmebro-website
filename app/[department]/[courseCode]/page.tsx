@@ -20,6 +20,8 @@ import CourseTableOfContents from '@/components/course/CourseTableOfContents';
 import FloatingWhatsAppFab from '@/components/course/FloatingWhatsAppFab';
 import OrderForm from '@/components/course/OrderForm';
 
+export const runtime = 'edge';
+
 interface Props {
   params: { department: string; courseCode: string };
   searchParams: { uni?: string };
