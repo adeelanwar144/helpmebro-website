@@ -1,0 +1,44 @@
+{
+  "name": "assignment-help",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run sync:universities && next dev",
+    "build": "npm run sync:universities && next build",
+    "sync:universities": "npx tsx scripts/sync-university-registry.ts",
+    "start": "next start",
+    "lint": "next lint",
+    "count-routes": "npx tsx scripts/count-routes.ts",
+    "generate-content": "npx tsx scripts/generate-course-content.ts",
+    "import-philos": "npx tsx scripts/import-philos-seo.ts",
+    "verify-seo-on-disk": "npx tsx scripts/verify-seo-on-disk.ts",
+    "ohio-state:screen": "npx tsx scripts/generate-course-content.ts --university=ohio-state",
+    "ohio-state:screen-audit": "npx tsx scripts/rerun-screening-audit.ts",
+    "ohio-state:step1": "npx tsx scripts/run-step1-clas.ts",
+    "ohio-state:verify-step1": "npx tsx scripts/verify-clas-step1.ts",
+    "ohio-state:generate-clas": "npx tsx scripts/generate-course-content.ts --university=ohio-state --department=CLAS --approved",
+    "ohio-state:generate-clas-1101": "npx tsx scripts/generate-course-content.ts --university=ohio-state --course=\"CLAS 1101\" --approved",
+    "ohio-state:step2": "npx tsx scripts/generate-course-content.ts --university=ohio-state --skip-departments=PHILOS,CLAS --approved",
+    "ohio-state:final-report": "npx tsx scripts/final-report-ohio-state.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@vercel/analytics": "^1.5.0",
+    "dotenv": "^16.4.7",
+    "next": "14.2.29",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "server-only": "^0.0.1",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.50",
+    "@types/react": "^18.3.22",
+    "@types/react-dom": "^18.3.7",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.29",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3"
+  }
+}

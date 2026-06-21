@@ -1,0 +1,283 @@
+import 'server-only';
+
+import fs from 'fs';
+import path from 'path';
+import {
+  DATA_BASE_URL,
+  INDEX_URL,
+  NESTED_INDEX_FALLBACK_URL,
+  type Course,
+  type DataIndex,
+  type Department,
+  type SiteData,
+  type SiteStats,
+  type UniversityData,
+  type UniversityIndex,
+  type UniversitySummaryFile,
+  type DepartmentFileRaw,
+} from './types';
+import { getLiveUniversityShortKeys, isLiveSlug } from './universities';
+import {
+  universityToSlug,
+  nameToDepartmentSlug,
+  courseCodeToSlug,
+  buildSearchableCourses,
+  findCourse,
+  findDepartmentBySlug,
+} from './courseUtils';
+import { processUniversityData, findUniqueCourse } from './processUniversity';
+import { getDepartmentSlug } from './departmentSlugs';
+import {
+  loadAllCoursesFile,
+  buildSeoContentIndex,
+  getSeoContentForCourse,
+  isCourseExcluded,
+} from './seoContentLoader';
+import { loadPhilosSeoContentMap } from './philosSeoOverlay';
+
+export {
+  universityToSlug,
+  nameToDepartmentSlug,
+  courseCodeToSlug,
+  getDepartmentSlug,
+  findCourse,
+  findDepartmentBySlug,
+  findUniqueCourse,
+  buildSearchableCourses,
+};
+
+const FETCH_OPTIONS = { next: { revalidate: 3600 } } as const;
+
+let siteDataCache: SiteData | null = null;
+
+function normalizeCourse(raw: Record<string, unknown>): Course {
+  return {
+    department: String(raw.department ?? ''),
+    courseCode: String(raw.courseCode ?? ''),
+    courseTitle: String(raw.courseTitle ?? raw.title ?? ''),
+    section: (raw.section as string | null) ?? null,
+    crn: (raw.crn as string | null) ?? null,
+    session: ((raw.session ?? raw.sessionName) as string | null) ?? null,
+    sessionStart: ((raw.sessionStart ?? raw.instructionStart) as string | null) ?? null,
+    sessionEnd: ((raw.sessionEnd ?? raw.instructionEnd) as string | null) ?? null,
+    location: (raw.location as string | null) ?? null,
+    meetingDays: (raw.meetingDays as string | null) ?? null,
+    meetingTime: (raw.meetingTime as string | null) ?? null,
+    instructionMode: ((raw.instructionMode ?? raw.format) as string | null) ?? null,
+    instructor: (raw.instructor as string | null) ?? null,
+    credits: raw.credits != null ? String(raw.credits) : null,
+    description: (raw.description as string | null) ?? null,
+    attributes: (raw.attributes as string | null) ?? null,
+    sourceUrl: ((raw.sourceUrl ?? raw.syllabusUrl ?? raw.dataSource) as string | null) ?? null,
+  };
+}
+
+function isNestedUniversity(university: unknown): university is UniversityIndex {
+  if (!university || typeof university !== 'object') return false;
+  const u = university as UniversityIndex;
+  return (
+    typeof u.university === 'string' &&
+    Array.isArray(u.departments) &&
+    u.departments.some((d) => Array.isArray(d.courses))
+  );
+}
+
+function isValidNestedIndex(data: unknown): data is DataIndex {
+  if (!data || typeof data !== 'object') return false;
+  const index = data as DataIndex;
+  return Array.isArray(index.universities) && index.universities.some(isNestedUniversity);
+}
+
+async function fetchJson<T>(url: string): Promise<T | null> {
+  try {
+    const res = await fetch(url, FETCH_OPTIONS);
+    if (!res.ok) return null;
+    return res.json() as Promise<T>;
+  } catch {
+    return null;
+  }
+}
+
+function loadLocalNestedIndex(): DataIndex | null {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'index.json');
+    if (!fs.existsSync(filePath)) return null;
+    const raw = JSON.parse(fs.readFileSync(filePath, 'utf8')) as unknown;
+    return isValidNestedIndex(raw) ? raw : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveNestedIndex(): Promise<DataIndex | null> {
+  const main = await fetchJson<unknown>(INDEX_URL);
+
+  if (isValidNestedIndex(main)) return main;
+
+  const fallback = await fetchJson<unknown>(NESTED_INDEX_FALLBACK_URL);
+  if (isValidNestedIndex(fallback)) return fallback;
+
+  return loadLocalNestedIndex();
+}
+
+function mergeLocalSeoContent(university: UniversityData): UniversityData {
+  const localFile = loadAllCoursesFile(university.slug);
+  const index = buildSeoContentIndex(localFile);
+  const philosOverlay =
+    university.slug === 'ohio-state' ? loadPhilosSeoContentMap() : new Map();
+
+  const departments = university.departments.map((dept) => {
+    if (!dept.uniqueCourses) return dept;
+
+    const uniqueCourses = dept.uniqueCourses.map((course) => {
+      const code = course.courseCode.trim();
+      const seoContent =
+        getSeoContentForCourse(code, index) ?? philosOverlay.get(code);
+      const excluded = isCourseExcluded(code, index);
+      return {
+        ...course,
+        ...(seoContent ? { seoContent } : {}),
+        ...(excluded ? { excluded: true } : {}),
+      };
+    });
+
+    return { ...dept, uniqueCourses };
+  });
+
+  return { ...university, departments };
+}
+
+function enrichFromNested(university: UniversityIndex): UniversityData {
+  const slug = universityToSlug(university.university);
+  const departments: Department[] = university.departments.map((dept) => ({
+    name: dept.name,
+    count: dept.courses?.length ?? dept.count ?? 0,
+    courses: (dept.courses ?? []).map((c) => normalizeCourse(c as unknown as Record<string, unknown>)),
+  }));
+
+  return mergeLocalSeoContent(
+    processUniversityData({
+      ...university,
+      slug,
+      departments,
+      totalCourses: departments.reduce((sum, d) => sum + d.courses.length, 0),
+      courses: departments.flatMap((d) => d.courses),
+    })
+  );
+}
+
+async function loadUniversityFromFolders(slug: string): Promise<UniversityData | null> {
+  const summary = await fetchJson<UniversitySummaryFile>(`${DATA_BASE_URL}/${slug}/summer2026.json`);
+  if (!summary?.departments) return null;
+
+  const activeDepts = summary.departments.filter((d) => d.count > 0);
+  const departmentResults = await Promise.all(
+    activeDepts.map(async (dept) => {
+      const deptSlug = nameToDepartmentSlug(dept.name);
+      const file = await fetchJson<DepartmentFileRaw>(`${DATA_BASE_URL}/${slug}/${deptSlug}.json`);
+      if (!file?.courses?.length) return null;
+      const courses = file.courses.map((c) => normalizeCourse(c));
+      return { name: file.department ?? dept.name, count: courses.length, courses };
+    })
+  );
+
+  const departments = departmentResults.filter(Boolean) as Department[];
+  if (!departments.length) return null;
+
+  return mergeLocalSeoContent(
+    processUniversityData({
+      slug: summary.id ?? slug,
+      university: summary.fullName,
+      location: summary.city,
+      term: summary.term,
+      totalCourses: departments.reduce((sum, d) => sum + d.courses.length, 0),
+      departments,
+      courses: departments.flatMap((d) => d.courses),
+    })
+  );
+}
+
+async function loadFromNestedIndex(): Promise<UniversityData[]> {
+  const index = await resolveNestedIndex();
+  if (!index) return [];
+
+  return index.universities
+    .filter(isNestedUniversity)
+    .map(enrichFromNested)
+    .filter((u) => isLiveSlug(u.slug));
+}
+
+async function loadFromFolders(): Promise<UniversityData[]> {
+  const results = await Promise.all(
+    getLiveUniversityShortKeys().map((slug) => loadUniversityFromFolders(slug))
+  );
+  return results.filter(Boolean) as UniversityData[];
+}
+
+export function computeIndexStats(universities: UniversityData[]): SiteStats {
+  return {
+    totalSections: universities.reduce((sum, u) => sum + (u.totalSections ?? u.courses.length), 0),
+    totalUniqueCourses: universities.reduce(
+      (sum, u) => sum + (u.totalUniqueCourses ?? 0),
+      0
+    ),
+    totalDepartments: universities.reduce(
+      (sum, u) => sum + (u.totalDepartments ?? u.departments.length),
+      0
+    ),
+    totalUniversities: universities.length,
+  };
+}
+
+/** Single source of truth for homepage stats, search, and university cards */
+export async function getSiteData(): Promise<SiteData> {
+  if (siteDataCache) return siteDataCache;
+
+  let universities = await loadFromNestedIndex();
+
+  if (!universities.length) {
+    universities = await loadFromFolders();
+  }
+
+  universities = universities
+    .filter((u) => isLiveSlug(u.slug))
+    .sort((a, b) => a.university.localeCompare(b.university));
+
+  const stats = computeIndexStats(universities);
+  const searchableCourses = buildSearchableCourses(universities);
+
+  siteDataCache = { universities, stats, searchableCourses };
+  return siteDataCache;
+}
+
+export async function fetchAllUniversities(): Promise<UniversityData[]> {
+  return (await getSiteData()).universities;
+}
+
+export async function fetchUniversityData(slug: string): Promise<UniversityData | null> {
+  if (!isLiveSlug(slug)) return null;
+  const { universities } = await getSiteData();
+  let uni = universities.find((u) => u.slug === slug) ?? null;
+  if (!uni) {
+    uni = await loadUniversityFromFolders(slug);
+  } else {
+    // Re-read local all-courses.json so newly generated seoContent appears without restarting the server.
+    uni = mergeLocalSeoContent(uni);
+  }
+  return uni;
+}
+
+/** All route URLs for a live university subdomain sitemap */
+export function getUniversityRoutePaths(university: UniversityData): string[] {
+  const paths = ['/'];
+
+  for (const dept of university.departments) {
+    if (!dept.slug) continue;
+    paths.push(`/${dept.slug}`);
+    for (const course of dept.uniqueCourses ?? []) {
+      paths.push(`/${dept.slug}/${course.slug}`);
+    }
+  }
+
+  return paths;
+}

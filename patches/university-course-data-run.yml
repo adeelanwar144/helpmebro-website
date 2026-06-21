@@ -1,0 +1,20 @@
+name: Scrape Courses
+
+# DISABLED 2026-06-19
+# The old scraper (scraper.js) wrote per-university folders under data/.
+# Those folders were removed; the live dataset is now data/index.json only.
+# Re-enable only after scraper.js is rewritten to merge into index.json.
+on:
+  workflow_dispatch:
+  # schedule removed — was: cron '0 3 * * *' (daily 03:00 UTC)
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scraper disabled — pending index.json migration
+        run: |
+          echo "::error::Scraper workflow is disabled."
+          echo "The per-university folder layout no longer exists."
+          echo "Update scraper.js to write data/index.json, then restore the job steps."
+          exit 1

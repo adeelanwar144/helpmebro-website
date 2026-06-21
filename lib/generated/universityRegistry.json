@@ -1,0 +1,203 @@
+[
+  {
+    "fullName": "Arizona State University",
+    "displaySlug": "asu-assignment-help",
+    "shortKey": "asu",
+    "status": "live",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "boston-university",
+    "status": "coming_soon",
+    "fullName": "Boston University",
+    "displaySlug": "boston-university-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "fullName": "Columbia University",
+    "displaySlug": "columbia-university-assignment-help",
+    "shortKey": "columbia",
+    "status": "live",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "eastern-michigan",
+    "status": "coming_soon",
+    "fullName": "Eastern Michigan University",
+    "displaySlug": "eastern-michigan-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "fullName": "Fordham University",
+    "displaySlug": "fordham-university-assignment-help",
+    "shortKey": "fordham",
+    "status": "live",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "harvard",
+    "status": "coming_soon",
+    "fullName": "Harvard University",
+    "displaySlug": "harvard-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "ivy-tech",
+    "status": "coming_soon",
+    "fullName": "Ivy Tech Community College",
+    "displaySlug": "ivy-tech-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "mit",
+    "status": "coming_soon",
+    "fullName": "MIT",
+    "displaySlug": "mit-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "nyu",
+    "status": "coming_soon",
+    "fullName": "New York University",
+    "displaySlug": "nyu-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "ohio-university",
+    "status": "coming_soon",
+    "fullName": "Ohio University",
+    "displaySlug": "ohio-university-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "san-diego-state",
+    "status": "coming_soon",
+    "fullName": "San Diego State University",
+    "displaySlug": "san-diego-state-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "stanford",
+    "status": "coming_soon",
+    "fullName": "Stanford University",
+    "displaySlug": "stanford-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "texas-am",
+    "status": "coming_soon",
+    "fullName": "Texas A&M University",
+    "displaySlug": "texas-am-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "fullName": "The Ohio State University",
+    "displaySlug": "ohio-state-university-assignment-help",
+    "shortKey": "ohio-state",
+    "status": "live",
+    "assignmentHelpName": "Ohio State University",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "ucla",
+    "status": "coming_soon",
+    "fullName": "UCLA",
+    "displaySlug": "ucla-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "fullName": "University of Connecticut",
+    "displaySlug": "uconn-assignment-help",
+    "shortKey": "uconn",
+    "status": "live",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "university-of-michigan",
+    "status": "coming_soon",
+    "fullName": "University of Michigan",
+    "displaySlug": "university-of-michigan-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "ut-austin",
+    "status": "coming_soon",
+    "fullName": "University of Texas at Austin",
+    "displaySlug": "ut-austin-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "toledo",
+    "status": "coming_soon",
+    "fullName": "University of Toledo",
+    "displaySlug": "toledo-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  },
+  {
+    "shortKey": "western-michigan",
+    "status": "coming_soon",
+    "fullName": "Western Michigan University",
+    "displaySlug": "western-michigan-assignment-help",
+    "theme": {
+      "accentColor": null,
+      "accentColorSource": null
+    }
+  }
+]

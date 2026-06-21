@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-navy: #1c1f4c;
+  --color-teal-dark: #037272;
+  --color-teal: #00848c;
+  --color-gold: #fec20f;
+  --color-yellow: #fccf17;
+  --color-cream: #edebd9;
+  --university-accent: var(--color-teal);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    color: var(--color-navy);
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-gold hover:bg-brand-yellow active:bg-brand-gold
+           text-brand-navy font-bold text-base
+           px-6 py-3 rounded-lg
+           transition-all duration-200 ease-out
+           inline-flex items-center gap-2
+           shadow-sm hover:shadow-md hover:-translate-y-0.5
+           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal;
+  }
+
+  .btn-whatsapp {
+    background-color: #25d366;
+    color: #ffffff;
+    text-decoration: none;
+    @apply font-bold text-base py-2.5 px-5 rounded-lg
+           inline-flex items-center gap-2 shrink-0
+           transition-all duration-200 ease-out
+           shadow-sm hover:shadow-md hover:-translate-y-0.5
+           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal;
+  }
+
+  .btn-whatsapp:hover {
+    background-color: #20bd5a;
+    color: #ffffff;
+  }
+
+  .btn-secondary {
+    @apply bg-white hover:bg-brand-cream text-brand-teal-dark font-semibold text-base
+           px-6 py-3 rounded-lg border-2 border-brand-teal
+           transition-all duration-200 ease-out
+           inline-flex items-center gap-2
+           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal;
+  }
+
+  .card {
+    @apply bg-white rounded-xl border border-brand-cream
+           shadow-sm transition-all duration-200 ease-out;
+  }
+
+  .card-interactive {
+    @apply card hover:shadow-lg hover:border-brand-teal/40 hover:-translate-y-0.5
+           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal;
+  }
+
+  .section-heading {
+    @apply text-2xl font-bold text-brand-navy mb-1 font-display;
+  }
+
+  .section-subheading {
+    @apply text-brand-teal text-sm mb-6;
+  }
+
+  .nav-link {
+    @apply text-sm text-brand-navy/70 font-medium px-3 py-1.5 rounded-md
+           transition-all duration-200 ease-out
+           hover:text-brand-teal hover:underline hover:underline-offset-4 hover:decoration-brand-teal
+           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal;
+  }
+
+  .input-field {
+    @apply w-full border border-brand-cream rounded-lg px-3 py-2 text-base text-brand-navy
+           placeholder:text-brand-navy/40
+           focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-brand-teal
+           transition-all duration-200 ease-out;
+  }
+
+  .page-hero {
+    @apply relative bg-gradient-to-br from-brand-navy via-brand-navy to-brand-teal-dark
+           text-white py-14 sm:py-20 px-4 overflow-hidden;
+  }
+
+  .hero-dot-grid {
+    background-image: radial-gradient(circle, rgba(0, 132, 140, 0.22) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .btn-hero-cta {
+    @apply bg-brand-gold hover:bg-brand-yellow
+           text-brand-navy font-bold text-base
+           px-8 py-3.5 rounded-xl
+           shadow-lg shadow-brand-navy/20
+           hover:shadow-xl hover:-translate-y-0.5
+           border border-brand-gold
+           transition-all duration-200 ease-out
+           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal;
+  }
+
+  .stats-section {
+    @apply relative bg-gradient-to-br from-brand-navy via-brand-navy to-brand-teal-dark py-14 sm:py-16 px-4 overflow-hidden;
+  }
+
+  .stats-value {
+    @apply text-4xl sm:text-5xl font-extrabold font-display text-brand-gold;
+  }
+
+  .stats-label {
+    @apply text-white/75 text-xs sm:text-sm mt-2 uppercase tracking-widest font-semibold;
+  }
+}
