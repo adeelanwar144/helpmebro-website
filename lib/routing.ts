@@ -29,6 +29,13 @@ export function getSubdomainFromHost(host: string): string | null {
   return null;
 }
 
+/** Prefer Worker-provided x-forwarded-host; fall back to host for local dev. */
+export function getEffectiveRequestHost(
+  getHeader: (name: string) => string | null
+): string {
+  return getHeader('x-forwarded-host') || getHeader('host') || '';
+}
+
 /** Internal university key from Host (maps descriptive subdomain → shortKey). */
 export function getUniversityKeyFromHost(host: string): string | null {
   const hostSubdomain = getSubdomainFromHost(host);

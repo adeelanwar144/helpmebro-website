@@ -1,12 +1,13 @@
 import type { MetadataRoute } from 'next';
 import { headers } from 'next/headers';
-import { getBaseUrlFromHost, getUniversityKeyFromHost } from '@/lib/routing';
+import { getBaseUrlFromHost, getEffectiveRequestHost, getUniversityKeyFromHost } from '@/lib/routing';
 import { SITE_URL } from '@/lib/site';
 
 export const runtime = 'edge';
 
 export default function robots(): MetadataRoute.Robots {
-  const host = headers().get('host') ?? '';
+  const requestHeaders = headers();
+  const host = getEffectiveRequestHost((name) => requestHeaders.get(name));
   const uniKey = getUniversityKeyFromHost(host);
   const baseUrl = uniKey ? getBaseUrlFromHost(host) : SITE_URL;
 
