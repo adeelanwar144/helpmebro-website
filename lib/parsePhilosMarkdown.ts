@@ -49,7 +49,7 @@ function extractKeywords(body: string, courseCode: string): string[] {
     'help write your philosophy essay',
     'help write your logic essay',
   ];
-  return [...new Set(candidates.filter((phrase) => lower.includes(phrase.toLowerCase())))];
+  return Array.from(new Set(candidates.filter((phrase) => lower.includes(phrase.toLowerCase()))));
 }
 
 export function parsePhilosMarkdown(content: string, courseCode: string): CourseSeoContent {

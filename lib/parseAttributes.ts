@@ -13,5 +13,5 @@ export function parseAttributeChips(raw: string | null | undefined): string[] {
     .map((part) => part.trim())
     .filter((part) => part.length > 0);
 
-  return [...new Set(chips)];
+  return Array.from(new Set(chips));
 }

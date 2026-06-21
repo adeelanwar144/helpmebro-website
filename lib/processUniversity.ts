@@ -47,7 +47,7 @@ export function processDepartment(dept: Department, universitySlug: string): Dep
 export function processUniversityData(university: UniversityData): UniversityData {
   const departments = university.departments
     .map((dept) => processDepartment(dept, university.slug))
-    .filter((dept) => dept.sectionCount > 0 || dept.courses.length > 0)
+    .filter((dept) => (dept.sectionCount ?? 0) > 0 || dept.courses.length > 0)
     .sort((a, b) => (a.displayName ?? a.name).localeCompare(b.displayName ?? b.name));
 
   const courses = departments.flatMap((d) => d.courses);
