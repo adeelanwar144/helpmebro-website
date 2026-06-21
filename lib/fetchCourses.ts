@@ -264,6 +264,7 @@ export function getUniversityRoutePaths(university: UniversityData): string[] {
     if (!dept.slug) continue;
     paths.push(`/${dept.slug}`);
     for (const course of dept.uniqueCourses ?? []) {
+      if (course.excluded) continue;
       paths.push(`/${dept.slug}/${course.slug}`);
     }
   }

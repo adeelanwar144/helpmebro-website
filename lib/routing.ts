@@ -59,6 +59,11 @@ export function universitySubdomainUrl(uniSlug: string, path = '/'): string {
   return `https://${hostSubdomain}.${domain}${suffix}`;
 }
 
+/** Root URL for any registry subdomain label (live or coming soon). */
+export function universitySubdomainRootUrl(displaySlug: string): string {
+  return `https://${displaySlug}.${getApexDomain()}`;
+}
+
 /** Self-referencing canonical on the university subdomain (no query string). */
 export function canonicalUniversityUrl(uniSlug: string, path = '/'): string {
   return universitySubdomainUrl(uniSlug, path);

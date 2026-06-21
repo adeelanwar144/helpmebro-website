@@ -17,6 +17,10 @@ export function getUniversityByShortKey(shortKey: string): UniversityMeta | unde
   return REGISTRY.find((u) => u.shortKey === shortKey);
 }
 
+export function getUniversityByDisplaySlug(displaySlug: string): UniversityMeta | undefined {
+  return REGISTRY.find((u) => u.displaySlug === displaySlug);
+}
+
 export function getLiveUniversities(): UniversityMeta[] {
   return REGISTRY.filter((u) => u.status === 'live');
 }
