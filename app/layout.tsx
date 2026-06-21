@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Lexend } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import { DEFAULT_OG_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 import './globals.css';
 
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${lexend.variable}`}>
       <body className="min-h-screen flex flex-col font-sans">
+        <GoogleAnalytics />
         {children}
         <Analytics />
       </body>
