@@ -26,7 +26,8 @@ function extractHostSubdomain(host: string): string | null {
 }
 
 export function middleware(request: NextRequest) {
-  const host = request.headers.get('host') || '';
+  const host =
+    request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
   const hostSubdomain = extractHostSubdomain(host);
 
   if (!hostSubdomain) {
