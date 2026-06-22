@@ -189,6 +189,23 @@ def main() -> None:
         for s in c0["sections"][:5]:
             print(f"  H2: {s['heading'][:70]} ({s['body_paragraphs']} paras)")
 
+    print("\n=== COURSE DETAILS ===")
+    by_code = {c["courseCode"].strip().upper(): c for c in catalog["courses"]}
+    for c in unis[0]["courses"]:
+        code = c["code"]
+        rec = by_code.get(code.upper())
+        print(f"{code}")
+        if rec:
+            print(f"  Title: {rec.get('courseTitle')}")
+            print(f"  Dept slug: {rec.get('departmentSlug')}")
+        print(f"  H1 present: {bool(c.get('h1'))}")
+        print(f"  Sections: {len(c['sections'])}, FAQ: {len(c['faq'])}")
+        if c["faq"]:
+            print(f"  FAQ sample Q: {c['faq'][0]['q']}")
+        print()
+
+    print("Doc ends with:", paras[-2:])
+
 
 if __name__ == "__main__":
     main()
