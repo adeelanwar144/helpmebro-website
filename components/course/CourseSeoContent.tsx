@@ -4,6 +4,8 @@ import { COURSE_IMAGE_SLOTS } from '@/lib/coursePageImages';
 import {
   buildTocItems,
   isCalloutParagraph,
+  isFaqSectionHeading,
+  parseFaqItems,
   slugifyHeading,
   splitParagraphs,
 } from '@/lib/courseContentUtils';
@@ -24,6 +26,17 @@ function howItWorksAfterSectionIndex(sectionCount: number): number | null {
   if (sectionCount < 2) return null;
   if (sectionCount <= 3) return 1;
   return 2;
+}
+
+function renderFaqBody(body: string) {
+  return parseFaqItems(body).map(({ question, answer }, index) => (
+    <div key={index} className={index > 0 ? 'mt-8' : undefined}>
+      <h3 className="font-display text-lg sm:text-xl font-bold text-brand-navy mb-3 leading-snug">
+        {question}
+      </h3>
+      <p className="leading-relaxed">{answer}</p>
+    </div>
+  ));
 }
 
 function renderParagraphs(body: string) {
@@ -78,7 +91,9 @@ export default function CourseSeoContent({ seoContent, courseCode, scheduleDetai
             {section.heading}
           </h2>
           <div className="text-brand-navy/80 text-base leading-relaxed space-y-5">
-            {renderParagraphs(section.body)}
+            {isFaqSectionHeading(section.heading)
+              ? renderFaqBody(section.body)
+              : renderParagraphs(section.body)}
           </div>
         </section>
 
