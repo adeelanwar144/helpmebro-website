@@ -4,6 +4,7 @@ import {
   DATA_BASE_URL,
   INDEX_URL,
   NESTED_INDEX_FALLBACK_URL,
+  SITE_SEO_CONTENT_BASE_URL,
   type AllCoursesFile,
   type Course,
   type DataIndex,
@@ -47,6 +48,18 @@ export {
 const FETCH_OPTIONS = { next: { revalidate: 3600 } } as const;
 
 let siteDataCache: SiteData | null = null;
+const siteSeoFileCache = new Map<string, Promise<AllCoursesFile | null>>();
+
+async function fetchPublishedSeoContentFile(universitySlug: string): Promise<AllCoursesFile | null> {
+  const cached = siteSeoFileCache.get(universitySlug);
+  if (cached) return cached;
+
+  const request = fetchJson<AllCoursesFile>(
+    `${SITE_SEO_CONTENT_BASE_URL}/${universitySlug}/all-courses.json`
+  );
+  siteSeoFileCache.set(universitySlug, request);
+  return request;
+}
 
 function normalizeCourse(raw: Record<string, unknown>): Course {
   return {
@@ -111,9 +124,11 @@ async function mergeSeoContent(university: UniversityData): Promise<UniversityDa
   const remoteFile = await fetchJson<AllCoursesFile>(
     `${DATA_BASE_URL}/${university.slug}/all-courses.json`
   );
+  const publishedSeoFile = await fetchPublishedSeoContentFile(university.slug);
   const mergedFile = mergeAllCoursesFiles(
     remoteFile,
-    getBundledAllCoursesFile(university.slug)
+    getBundledAllCoursesFile(university.slug),
+    publishedSeoFile
   );
   const index = buildSeoContentIndex(mergedFile);
 

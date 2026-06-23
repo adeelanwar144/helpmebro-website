@@ -8,6 +8,10 @@ export const NESTED_INDEX_FALLBACK_URL =
 export const DATA_BASE_URL =
   'https://raw.githubusercontent.com/adeelanwar144/university-course-data/main/data';
 
+/** Live SEO content published from this repo (wins over build-time bundle on Cloudflare). */
+export const SITE_SEO_CONTENT_BASE_URL =
+  'https://raw.githubusercontent.com/adeelanwar144/helpmebro-website/main/data';
+
 export interface CourseSeoSection {
   heading: string;
   body: string;
