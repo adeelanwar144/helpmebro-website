@@ -5,6 +5,7 @@ import {
   SITE_SEO_CONTENT_BASE_URL,
   SITE_SEO_CONTENT_CDN_BASE_URL,
 } from './types';
+import { getBundledAllCoursesFile } from './bundledAllCourses';
 
 interface SeoChunkFile {
   universitySlug: string;
@@ -56,8 +57,13 @@ export async function fetchCourseSeoContent(
   courseCode: string
 ): Promise<CourseSeoContent | undefined> {
   const chunk = await fetchSeoChunk(universitySlug, departmentSlug);
-  if (!chunk) return undefined;
-
   const code = courseCode.trim();
-  return chunk.courses.find((course) => course.courseCode.trim() === code)?.seoContent;
+
+  if (chunk) {
+    const fromChunk = chunk.courses.find((course) => course.courseCode.trim() === code)?.seoContent;
+    if (fromChunk) return fromChunk;
+  }
+
+  const bundled = getBundledAllCoursesFile(universitySlug);
+  return bundled?.courses.find((course) => course.courseCode.trim() === code)?.seoContent;
 }
