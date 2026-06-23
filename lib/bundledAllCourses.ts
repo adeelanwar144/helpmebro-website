@@ -1,10 +1,10 @@
 import type { AllCoursesFile, AllCoursesRecord } from './types';
 import fordhamAllCourses from '@/data/fordham/all-courses.json';
-import ohioStateAllCourses from '@/data/ohio-state/all-courses.json';
 
+// Ohio State SEO lives in repo/CDN dept chunks (~18KB each) and is fetched at runtime.
+// Do not statically import data/ohio-state/all-courses.json — it exceeds Cloudflare Workers' 1 MiB bundle limit.
 const BUNDLED_BY_SLUG: Record<string, AllCoursesFile> = {
   fordham: fordhamAllCourses as AllCoursesFile,
-  'ohio-state': ohioStateAllCourses as AllCoursesFile,
 };
 
 export function getBundledAllCoursesFile(universitySlug: string): AllCoursesFile | null {
