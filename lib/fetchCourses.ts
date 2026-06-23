@@ -1,10 +1,13 @@
 import 'server-only';
 
+import { headers } from 'next/headers';
+
 import {
   DATA_BASE_URL,
   INDEX_URL,
   NESTED_INDEX_FALLBACK_URL,
   SITE_SEO_CONTENT_BASE_URL,
+  SITE_SEO_CONTENT_CDN_BASE_URL,
   type AllCoursesFile,
   type Course,
   type DataIndex,
@@ -46,19 +49,45 @@ export {
 };
 
 const FETCH_OPTIONS = { next: { revalidate: 3600 } } as const;
+const EXTERNAL_FETCH_OPTIONS: RequestInit = { cache: 'force-cache' };
 
-let siteDataCache: SiteData | null = null;
-const siteSeoFileCache = new Map<string, Promise<AllCoursesFile | null>>();
+async function fetchExternalJson<T>(url: string): Promise<T | null> {
+  try {
+    const res = await fetch(url, EXTERNAL_FETCH_OPTIONS);
+    if (!res.ok) return null;
+    return res.json() as Promise<T>;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchStaticSeoFromRequestHost(universitySlug: string): Promise<AllCoursesFile | null> {
+  try {
+    const requestHeaders = headers();
+    const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host');
+    if (!host) return null;
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    return fetchExternalJson<AllCoursesFile>(
+      `${protocol}://${host}/data/${universitySlug}/all-courses.json`
+    );
+  } catch {
+    return null;
+  }
+}
 
 async function fetchPublishedSeoContentFile(universitySlug: string): Promise<AllCoursesFile | null> {
-  const cached = siteSeoFileCache.get(universitySlug);
-  if (cached) return cached;
+  const sources = [
+    `${SITE_SEO_CONTENT_CDN_BASE_URL}/${universitySlug}/all-courses.json`,
+    `${SITE_SEO_CONTENT_BASE_URL}/${universitySlug}/all-courses.json`,
+    `https://helpmebro.org/data/${universitySlug}/all-courses.json`,
+  ];
 
-  const request = fetchJson<AllCoursesFile>(
-    `${SITE_SEO_CONTENT_BASE_URL}/${universitySlug}/all-courses.json`
-  );
-  siteSeoFileCache.set(universitySlug, request);
-  return request;
+  for (const url of sources) {
+    const file = await fetchExternalJson<AllCoursesFile>(url);
+    if (file?.courses?.length) return file;
+  }
+
+  return fetchStaticSeoFromRequestHost(universitySlug);
 }
 
 function normalizeCourse(raw: Record<string, unknown>): Course {
@@ -236,8 +265,6 @@ export function computeIndexStats(universities: UniversityData[]): SiteStats {
 
 /** Single source of truth for homepage stats, search, and university cards */
 export async function getSiteData(): Promise<SiteData> {
-  if (siteDataCache) return siteDataCache;
-
   let universities = await loadFromNestedIndex();
 
   if (!universities.length) {
@@ -251,8 +278,7 @@ export async function getSiteData(): Promise<SiteData> {
   const stats = computeIndexStats(universities);
   const searchableCourses = buildSearchableCourses(universities);
 
-  siteDataCache = { universities, stats, searchableCourses };
-  return siteDataCache;
+  return { universities, stats, searchableCourses };
 }
 
 export async function fetchAllUniversities(): Promise<UniversityData[]> {
@@ -261,14 +287,12 @@ export async function fetchAllUniversities(): Promise<UniversityData[]> {
 
 export async function fetchUniversityData(slug: string): Promise<UniversityData | null> {
   if (!isLiveSlug(slug)) return null;
-  const { universities } = await getSiteData();
-  let uni = universities.find((u) => u.slug === slug) ?? null;
+  let uni = (await getSiteData()).universities.find((u) => u.slug === slug) ?? null;
   if (!uni) {
     uni = await loadUniversityFromFolders(slug);
-  } else {
-    uni = await mergeSeoContent(uni);
   }
-  return uni;
+  if (!uni) return null;
+  return mergeSeoContent(uni);
 }
 
 /** All route URLs for a live university subdomain sitemap */

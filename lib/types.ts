@@ -12,6 +12,9 @@ export const DATA_BASE_URL =
 export const SITE_SEO_CONTENT_BASE_URL =
   'https://raw.githubusercontent.com/adeelanwar144/helpmebro-website/main/data';
 
+export const SITE_SEO_CONTENT_CDN_BASE_URL =
+  'https://cdn.jsdelivr.net/gh/adeelanwar144/helpmebro-website@main/data';
+
 export interface CourseSeoSection {
   heading: string;
   body: string;
