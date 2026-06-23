@@ -1,0 +1,10 @@
+{
+  "universitySlug": "ohio-state",
+  "departmentSlug": "microbiology",
+  "courses": [
+    {
+      "courseCode": "MICRBIO 4000.02",
+      "excluded": true
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "universitySlug": "ohio-state",
+  "departmentSlug": "kinesiology",
+  "courses": [
+    {
+      "courseCode": "KNSISM 4191",
+      "excluded": true
+    }
+  ]
+}

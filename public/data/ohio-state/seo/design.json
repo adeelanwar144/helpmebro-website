@@ -1,0 +1,10 @@
+{
+  "universitySlug": "ohio-state",
+  "departmentSlug": "design",
+  "courses": [
+    {
+      "courseCode": "DESIGN 5193",
+      "excluded": true
+    }
+  ]
+}

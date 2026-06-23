@@ -49,7 +49,7 @@ export {
 };
 
 const FETCH_OPTIONS = { next: { revalidate: 3600 } } as const;
-const EXTERNAL_FETCH_OPTIONS: RequestInit = { cache: 'force-cache' };
+const EXTERNAL_FETCH_OPTIONS: RequestInit = { cache: 'no-store' };
 
 async function fetchExternalJson<T>(url: string): Promise<T | null> {
   try {

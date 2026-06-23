@@ -1,0 +1,10 @@
+{
+  "universitySlug": "ohio-state",
+  "departmentSlug": "education-and-human-ecology",
+  "courses": [
+    {
+      "courseCode": "EHE 3191",
+      "excluded": true
+    }
+  ]
+}

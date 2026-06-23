@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import type { CourseSeoContent as CourseSeoContentData } from '@/lib/types';
 import { fetchUniversityData, findUniqueCourse } from '@/lib/fetchCourses';
+import { fetchCourseSeoContent } from '@/lib/publishedSeoContent';
 import { slugToName } from '@/lib/subdomain';
 import { generateCourseMetadata } from '@/lib/seo';
 import { hrefOnUniversity, departmentPagePath } from '@/lib/routing';
@@ -35,6 +37,14 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const match = findUniqueCourse(data, params.department, params.courseCode);
   if (!match) return {};
 
+  const deptSlug = match.department.slug ?? params.department;
+  const seoContent = await resolveCourseSeoContent(
+    slug,
+    deptSlug,
+    match.course.courseCode,
+    match.course.seoContent
+  );
+
   const primary = match.course.sections[0];
   return generateCourseMetadata(
     primary,
@@ -42,11 +52,21 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     slug,
     params.department,
     params.courseCode,
-    match.course.seoContent
+    seoContent
   );
 }
 
-export const revalidate = 60;
+export const revalidate = 0;
+
+async function resolveCourseSeoContent(
+  universitySlug: string,
+  departmentSlug: string,
+  courseCode: string,
+  existing?: CourseSeoContentData
+): Promise<CourseSeoContentData | undefined> {
+  if (existing) return existing;
+  return fetchCourseSeoContent(universitySlug, departmentSlug, courseCode);
+}
 
 export default async function CoursePage({ params, searchParams }: Props) {
   const slug = searchParams.uni || '';
@@ -63,7 +83,12 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const uniName = data.university || slugToName(slug);
   const deptLabel = department.displayName ?? department.name;
   const deptSlug = department.slug ?? params.department;
-  const seoContent = course.seoContent;
+  const seoContent = await resolveCourseSeoContent(
+    slug,
+    deptSlug,
+    course.courseCode,
+    course.seoContent
+  );
   const tocItems = seoContent ? buildTocItems(seoContent.sections) : [];
 
   const breadcrumbItems = [
