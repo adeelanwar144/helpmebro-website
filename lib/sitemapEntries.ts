@@ -54,13 +54,18 @@ export function buildHubSubdomainSitemapEntry(
   ];
 }
 
-/** Apex-domain sitemap: main site pages plus every university and hub subdomain. */
-export function buildApexSitemapEntries(): MetadataRoute.Sitemap {
-  const entries: MetadataRoute.Sitemap = [
+/** Main apex-domain pages only (referenced by /sitemap-main.xml). */
+export function buildApexMainSitemapEntries(): MetadataRoute.Sitemap {
+  return [
     entry(SITE_URL, 1),
     entry(`${SITE_URL}/about-us`, 0.6, 'monthly'),
     entry(`${SITE_URL}/contact-us`, 0.6, 'monthly'),
   ];
+}
+
+/** @deprecated Use buildApexMainSitemapEntries + buildApexSitemapIndexUrls instead. */
+export function buildApexSitemapEntries(): MetadataRoute.Sitemap {
+  const entries = buildApexMainSitemapEntries();
 
   for (const uni of getLiveUniversities()) {
     entries.push(entry(universitySubdomainRootUrl(uni.displaySlug), 0.9));
