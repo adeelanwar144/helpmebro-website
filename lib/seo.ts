@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
+import type { HubPage } from './hubTypes';
 import { Course, CourseSeoContent } from './types';
 import { canonicalUniversityUrl } from './routing';
+import { hubCanonicalUrl } from './hubPages';
 import { getUniversityAssignmentHelpName } from './universities';
+import { SITE_NAME } from './site';
 
 export function withCanonical(metadata: Metadata, canonicalUrl: string): Metadata {
   return {
@@ -72,4 +75,30 @@ export function generateUniversityMetadata(
     },
     canonicalUniversityUrl(uniSlug, '/')
   );
+}
+
+export function generateHubMetadata(page: HubPage): Metadata {
+  const url = hubCanonicalUrl(page.slug);
+  const title = page.metaTitle;
+  const description = page.metaDescription;
+
+  return {
+    title,
+    description,
+    keywords: [page.primaryKeyword, ...page.secondaryKeywords],
+    alternates: { canonical: url },
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url,
+      siteName: SITE_NAME,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
 }

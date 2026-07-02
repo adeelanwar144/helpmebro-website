@@ -4,11 +4,11 @@ import { getSiteData, fetchUniversityData } from '@/lib/fetchCourses';
 import { buildSearchableCourses } from '@/lib/courseUtils';
 import { slugToName } from '@/lib/subdomain';
 import { getUniversityAssignmentHelpName } from '@/lib/universities';
-import { generateUniversityMetadata } from '@/lib/seo';
+import { generateUniversityMetadata, generateHubMetadata } from '@/lib/seo';
 import { isComingSoonSlug } from '@/lib/universities';
 import { DEFAULT_OG_DESCRIPTION, DEFAULT_OG_TITLE, SITE_NAME, SITE_URL } from '@/lib/site';
 import { organizationJsonLd, faqJsonLd } from '@/lib/structuredData';
-import { getHubPage, hubCanonicalUrl } from '@/lib/hubPages';
+import { getHubPage } from '@/lib/hubPages';
 import UniversityThemeProvider from '@/components/theme/UniversityThemeProvider';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -35,27 +35,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const hubSlug = searchParams.hub;
   if (hubSlug) {
     const hub = await getHubPage(hubSlug);
-    if (hub) {
-      const url = hubCanonicalUrl(hub.slug);
-      return {
-        title: hub.metaTitle,
-        description: hub.metaDescription,
-        keywords: [hub.primaryKeyword, ...hub.secondaryKeywords],
-        alternates: { canonical: url },
-        openGraph: {
-          title: hub.metaTitle,
-          description: hub.metaDescription,
-          type: 'website',
-          url,
-          siteName: SITE_NAME,
-        },
-        twitter: {
-          card: 'summary_large_image',
-          title: hub.metaTitle,
-          description: hub.metaDescription,
-        },
-      };
-    }
+    if (hub) return generateHubMetadata(hub);
   }
 
   const slug = searchParams.uni;

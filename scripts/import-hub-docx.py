@@ -305,6 +305,7 @@ def main() -> None:
                 "metaTitle": page["metaTitle"],
                 "h1": page["h1"],
                 "sourceFile": page["sourceFile"],
+                "lastReviewed": page["lastReviewed"],
             }
         )
         print(f"  + {slug} ({len(page['sections'])} sections, {len(page['faq'])} FAQ, {len(page['ctas'])} CTAs)")

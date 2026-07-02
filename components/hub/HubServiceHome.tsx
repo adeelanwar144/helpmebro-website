@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { HubPage } from '@/lib/hubTypes';
 import { hubSubdomainUrl, hubDevUrl } from '@/lib/hubPages';
-import { hubBreadcrumbJsonLd, hubFaqJsonLd, hubServiceJsonLd } from '@/lib/hubStructuredData';
+import { hubBreadcrumbJsonLd, hubFaqJsonLd, hubPersonJsonLd, hubServiceJsonLd } from '@/lib/hubStructuredData';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import JsonLd from '@/components/seo/JsonLd';
@@ -16,6 +16,8 @@ export default function HubServiceHome({ page }: Props) {
   const jsonLd: Record<string, unknown>[] = [hubServiceJsonLd(page), hubBreadcrumbJsonLd(page)];
   const faqLd = hubFaqJsonLd(page);
   if (faqLd) jsonLd.push(faqLd);
+  const personLd = hubPersonJsonLd(page);
+  if (personLd) jsonLd.push(personLd);
 
   return (
     <>

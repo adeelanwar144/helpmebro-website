@@ -4,10 +4,12 @@ import { fetchUniversityData } from '@/lib/fetchCourses';
 import {
   buildApexSitemapEntries,
   buildComingSoonSitemapEntries,
+  buildHubSubdomainSitemapEntry,
   buildUniversitySitemapEntries,
 } from '@/lib/sitemapEntries';
 import { getBaseUrlFromHost, getEffectiveRequestHost, getSubdomainFromHost } from '@/lib/routing';
-import { hubCanonicalUrl, isHubSlug } from '@/lib/hubPages';
+import hubIndex from '@/data/hub-pages/index.json';
+import { isHubSlug } from '@/lib/hubPages';
 import { getUniversityByDisplaySlug, isComingSoonSlug, isLiveSlug } from '@/lib/universities';
 
 export const runtime = 'edge';
@@ -23,7 +25,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const baseUrl = getBaseUrlFromHost(host);
   if (isHubSlug(hostSubdomain)) {
-    return [{ url: hubCanonicalUrl(hostSubdomain), lastModified: new Date() }];
+    const hubMeta = hubIndex.pages.find((page) => page.slug === hostSubdomain);
+    return buildHubSubdomainSitemapEntry(hostSubdomain, hubMeta?.lastReviewed);
   }
 
   const uniMeta = getUniversityByDisplaySlug(hostSubdomain);

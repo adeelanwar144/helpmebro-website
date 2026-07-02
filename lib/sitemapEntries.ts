@@ -1,22 +1,60 @@
 import type { MetadataRoute } from 'next';
 import type { UniversityData } from './types';
 import { getUniversityRoutePaths } from './fetchCourses';
-import { getHubSlugs, hubSubdomainUrl } from './hubPages';
+import hubIndex from '@/data/hub-pages/index.json';
+import { hubSubdomainUrl } from './hubPages';
 import { universitySubdomainRootUrl } from './routing';
 import { SITE_URL } from './site';
 import { getLiveUniversities, getComingSoonUniversities } from './universities';
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
+const MONEY_PAGE_SLUG = 'college-essay-writing-services';
+
 function entry(
   url: string,
   priority: number,
-  changeFrequency: SitemapEntry['changeFrequency'] = 'weekly'
+  changeFrequency: SitemapEntry['changeFrequency'] = 'weekly',
+  lastModified?: string
 ): SitemapEntry {
-  return { url, lastModified: new Date(), changeFrequency, priority };
+  return {
+    url,
+    lastModified: lastModified ? new Date(lastModified) : new Date(),
+    changeFrequency,
+    priority,
+  };
 }
 
-/** Apex-domain sitemap: main site pages plus every university subdomain root. */
+function hubSitemapPriority(slug: string): number {
+  if (slug === MONEY_PAGE_SLUG) return 0.95;
+  if (slug.endsWith('-service') || slug.includes('writing-service')) return 0.9;
+  if (slug.startsWith('how-') || slug.startsWith('what-') || slug.startsWith('do-')) return 0.8;
+  return 0.85;
+}
+
+/** All hub subdomain URLs for the apex sitemap. */
+export function buildHubSitemapEntries(): MetadataRoute.Sitemap {
+  return hubIndex.pages.map(({ slug, lastReviewed }) =>
+    entry(
+      hubSubdomainUrl(slug),
+      hubSitemapPriority(slug),
+      slug === MONEY_PAGE_SLUG ? 'weekly' : 'monthly',
+      lastReviewed
+    )
+  );
+}
+
+/** Single-entry sitemap for a hub subdomain. */
+export function buildHubSubdomainSitemapEntry(
+  slug: string,
+  lastReviewed?: string
+): MetadataRoute.Sitemap {
+  return [
+    entry(hubSubdomainUrl(slug), 1, 'monthly', lastReviewed),
+  ];
+}
+
+/** Apex-domain sitemap: main site pages plus every university and hub subdomain. */
 export function buildApexSitemapEntries(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [
     entry(SITE_URL, 1),
@@ -32,9 +70,7 @@ export function buildApexSitemapEntries(): MetadataRoute.Sitemap {
     entries.push(entry(universitySubdomainRootUrl(uni.displaySlug), 0.5, 'monthly'));
   }
 
-  for (const slug of getHubSlugs()) {
-    entries.push(entry(hubSubdomainUrl(slug), 0.85, 'monthly'));
-  }
+  entries.push(...buildHubSitemapEntries());
 
   return entries;
 }

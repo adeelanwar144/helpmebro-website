@@ -42,6 +42,21 @@ export function hubFaqJsonLd(page: HubPage) {
   };
 }
 
+export function hubPersonJsonLd(page: HubPage) {
+  if (!page.schemaTypes.some((type) => type.toLowerCase() === 'person')) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Muhammad Ahsan (Sheikh)',
+    jobTitle: 'PhD Scholar',
+    affiliation: {
+      '@type': 'CollegeOrUniversity',
+      name: 'University of Sydney',
+    },
+    knowsAbout: [page.primaryKeyword, ...page.secondaryKeywords.slice(0, 3)],
+  };
+}
+
 export function hubBreadcrumbJsonLd(page: HubPage) {
   return {
     '@context': 'https://schema.org',
