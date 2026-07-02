@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "npm run sync:universities && next dev",
-    "build": "npm run sync:universities && npm run sync:seo-public && npm run sync:seo-chunks && next build",
+    "build": "npm run sync:universities && npm run sync:seo-public && npm run sync:seo-chunks && npm run import:hubs && next build",
     "sync:universities": "npx tsx scripts/sync-university-registry.ts",
     "sync:seo-public": "node scripts/sync-seo-public.mjs",
     "sync:seo-chunks": "node scripts/sync-seo-chunks.mjs",
+    "import:hubs": "python scripts/import-hub-docx.py",
     "start": "next start",
     "lint": "next lint",
     "count-routes": "npx tsx scripts/count-routes.ts",

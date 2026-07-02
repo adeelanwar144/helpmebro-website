@@ -8,6 +8,7 @@ import { generateUniversityMetadata } from '@/lib/seo';
 import { isComingSoonSlug } from '@/lib/universities';
 import { DEFAULT_OG_DESCRIPTION, DEFAULT_OG_TITLE, SITE_NAME, SITE_URL } from '@/lib/site';
 import { organizationJsonLd, faqJsonLd } from '@/lib/structuredData';
+import { getHubPage, hubCanonicalUrl } from '@/lib/hubPages';
 import UniversityThemeProvider from '@/components/theme/UniversityThemeProvider';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -21,15 +22,42 @@ import UniversityGrid from '@/components/university/UniversityGrid';
 import Testimonials from '@/components/home/Testimonials';
 import FAQ from '@/components/home/FAQ';
 import JsonLd from '@/components/seo/JsonLd';
+import HubServiceHome from '@/components/hub/HubServiceHome';
 
 export const runtime = 'edge';
 export const revalidate = 3600;
 
 interface Props {
-  searchParams: { uni?: string };
+  searchParams: { uni?: string; hub?: string };
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const hubSlug = searchParams.hub;
+  if (hubSlug) {
+    const hub = await getHubPage(hubSlug);
+    if (hub) {
+      const url = hubCanonicalUrl(hub.slug);
+      return {
+        title: hub.metaTitle,
+        description: hub.metaDescription,
+        keywords: [hub.primaryKeyword, ...hub.secondaryKeywords],
+        alternates: { canonical: url },
+        openGraph: {
+          title: hub.metaTitle,
+          description: hub.metaDescription,
+          type: 'website',
+          url,
+          siteName: SITE_NAME,
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: hub.metaTitle,
+          description: hub.metaDescription,
+        },
+      };
+    }
+  }
+
   const slug = searchParams.uni;
   if (slug) {
     if (isComingSoonSlug(slug)) {
@@ -70,6 +98,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function HomePage({ searchParams }: Props) {
+  const hubSlug = searchParams.hub;
+  if (hubSlug) {
+    const hub = await getHubPage(hubSlug);
+    if (!hub) notFound();
+    return <HubServiceHome page={hub} />;
+  }
+
   const slug = searchParams.uni;
 
   if (slug) {

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import type { UniversityData } from './types';
 import { getUniversityRoutePaths } from './fetchCourses';
+import { getHubSlugs, hubSubdomainUrl } from './hubPages';
 import { universitySubdomainRootUrl } from './routing';
 import { SITE_URL } from './site';
 import { getLiveUniversities, getComingSoonUniversities } from './universities';
@@ -29,6 +30,10 @@ export function buildApexSitemapEntries(): MetadataRoute.Sitemap {
 
   for (const uni of getComingSoonUniversities()) {
     entries.push(entry(universitySubdomainRootUrl(uni.displaySlug), 0.5, 'monthly'));
+  }
+
+  for (const slug of getHubSlugs()) {
+    entries.push(entry(hubSubdomainUrl(slug), 0.85, 'monthly'));
   }
 
   return entries;

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { resolveHubSlugFromSubdomain } from '@/lib/hubPages';
 import { resolveUniversityKeyFromSubdomain } from '@/lib/universities';
 
 function extractHostSubdomain(host: string): string | null {
@@ -32,6 +33,13 @@ export function middleware(request: NextRequest) {
 
   if (!hostSubdomain) {
     return NextResponse.next();
+  }
+
+  const hubSlug = resolveHubSlugFromSubdomain(hostSubdomain);
+  if (hubSlug) {
+    const url = request.nextUrl.clone();
+    url.searchParams.set('hub', hubSlug);
+    return NextResponse.rewrite(url);
   }
 
   const uniKey = resolveUniversityKeyFromSubdomain(hostSubdomain);
